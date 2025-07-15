@@ -30,7 +30,7 @@ class PeralatanController extends Controller
 
         Peralatan::create($request->all());
 
-        return redirect()->route('peralatan.index')->with('success', 'Peralatan berhasil ditambahkan.');
+        return redirect()->route('admin.peralatan.index')->with('success', 'Peralatan berhasil ditambahkan.');
     }
 
     // Menampilkan form untuk mengedit peralatan
@@ -50,7 +50,7 @@ class PeralatanController extends Controller
 
         $peralatan->update($request->all());
 
-        return redirect()->route('peralatan.index')->with('success', 'Data peralatan berhasil diperbarui.');
+        return redirect()->route('admin.peralatan.index')->with('success', 'Data peralatan berhasil diperbarui.');
     }
 
     // Menghapus peralatan dari database
@@ -58,11 +58,11 @@ class PeralatanController extends Controller
     {
         // Tambahkan validasi agar tidak bisa menghapus tool yang sedang dipinjam
         if ($peralatan->status === 'dipinjam') {
-             return redirect()->route('peralatan.index')->withErrors('Tidak bisa menghapus peralatan yang sedang dipinjam.');
+             return redirect()->route('admin.peralatan.index')->withErrors('Tidak bisa menghapus peralatan yang sedang dipinjam.');
         }
 
         $peralatan->delete();
 
-        return redirect()->route('peralatan.index')->with('success', 'Peralatan berhasil dihapus.');
+        return redirect()->route('admin.peralatan.index')->with('success', 'Peralatan berhasil dihapus.');
     }
 }

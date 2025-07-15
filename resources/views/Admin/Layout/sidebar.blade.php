@@ -3,7 +3,7 @@
         <a href="{{ route('admin.dashboard') }}" class="app-brand-link">
             <span class="app-brand-logo demo">
                 {{-- Ganti dengan logo Anda --}}
-                <img src="{{ asset('assets/img/icons/unicons/briefcase-alt-2.png') }}" alt="Logo" width="30" />
+                <img src="{{ asset('assets/Logo.png') }}" alt="Logo" width="30" />
             </span>
             <span class="app-brand-text demo menu-text fw-bold ms-2">Tools Mng.</span>
         </a>
@@ -69,7 +69,7 @@
         </li>
         @endif
         {{-- Hanya tampilkan menu ini untuk admin dan storeman --}}
-        @if (in_array(Auth::user()->peran, ['admin', 'storeman']))
+        {{-- @if (in_array(Auth::user()->peran, ['admin', 'storeman']))
         <li class="menu-header small text-uppercase">
             <span class="menu-header-text">Transaksi</span>
         </li>
@@ -85,7 +85,7 @@
                 <div data-i18n="Log Peminjaman">Log Peminjaman</div>
             </a>
         </li>
-        @endif
+        @endif --}}
 
     </ul>
 </aside>

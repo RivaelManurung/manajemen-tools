@@ -19,7 +19,7 @@ class BorrowController extends Controller
         $mechanics = User::where('peran', 'mekanik')->get();
         $tools = Peralatan::orderBy('nama', 'asc')->get();
         
-        return view('admin.borrow.index', compact('mechanics', 'tools'));
+        return view('user.borrow.index', compact('mechanics', 'tools'));
     }
 
     /**
@@ -44,10 +44,10 @@ class BorrowController extends Controller
             $tool->status = 'dipinjam';
             $tool->save();
         } else {
-            return redirect()->route('admin.borrow.index')->withErrors('Peralatan ini sedang tidak tersedia.');
+            return redirect()->route('user.borrow.index')->withErrors('Peralatan ini sedang tidak tersedia.');
         }
 
-        return redirect()->route('admin.borrow.index')->with('success', 'Peralatan berhasil dipinjam.');
+        return redirect()->route('user.borrow.index')->with('success', 'Peralatan berhasil dipinjam.');
     }
 
     /**
@@ -74,7 +74,7 @@ class BorrowController extends Controller
         $tool->status = 'tersedia';
         $tool->save();
 
-        return redirect()->route('admin.borrow.index')->with('success', 'Peralatan berhasil dikembalikan.');
+        return redirect()->route('user.borrow.index')->with('success', 'Peralatan berhasil dikembalikan.');
     }
     
     /**
