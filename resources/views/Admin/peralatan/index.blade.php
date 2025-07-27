@@ -33,20 +33,19 @@
                         <td><span class="badge bg-label-success">{{ $item->stok_tersedia }}</span></td>
                         <td>
                             <div class="dropdown">
-                                <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                                <button type="button" class="btn p-0 dropdown-toggle hide-arrow"
+                                    data-bs-toggle="dropdown">
                                     <i class="bx bx-dots-vertical-rounded"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <button class="dropdown-item edit-peralatan" 
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#editPeralatanModal"
-                                        data-id="{{ $item->id }}"
-                                        data-nama="{{ $item->nama }}"
-                                        data-kode="{{ $item->kode }}"
+                                    <button class="dropdown-item edit-peralatan" data-bs-toggle="modal"
+                                        data-bs-target="#editPeralatanModal" data-id="{{ $item->id }}"
+                                        data-nama="{{ $item->nama }}" data-kode="{{ $item->kode }}"
                                         data-stok_total="{{ $item->stok_total }}">
                                         <i class="bx bx-edit-alt me-1"></i> Edit
                                     </button>
-                                    <form action="{{ route('peralatan.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Anda yakin ingin menghapus data ini?');">
+                                    <form action="{{ route('admin.peralatan.destroy', $item->id) }}" method="POST"
+                                        onsubmit="return confirm('Anda yakin ingin menghapus data ini?');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="dropdown-item text-danger">

@@ -10,7 +10,7 @@ class AuthController extends Controller
 {
     public function showLoginForm()
     {
-        return view('auth.login'); // Asumsi path view login
+        return view('admin.auth.login'); // Asumsi path view login
     }
 
     public function login(Request $request)
@@ -25,11 +25,11 @@ class AuthController extends Controller
 
             // PERBAIKAN: Redirect sesuai peran 'admin' atau 'user'
             if (Auth::user()->peran === 'admin') {
-                return redirect()->intended('/dashboard'); // Arahkan ke dashboard admin
+                return redirect()->route('admin.dashboard');
             }
 
             // Semua peran 'user' diarahkan ke halaman peminjaman
-            return redirect()->intended('/transaksi/create');
+            return redirect()->route('user.peminjaman.index');
         }
 
         return back()->withErrors([

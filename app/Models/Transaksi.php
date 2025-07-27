@@ -48,4 +48,12 @@ class Transaksi extends Model
     {
         return $this->belongsTo(User::class);
     }
+    /**
+     * Mendefinisikan relasi "milik" ke Storeman.
+     * Satu transaksi dikelola oleh satu storeman.
+     */
+    public function storeman(): BelongsTo
+    {   
+        return $this->belongsTo(Storeman::class);
+    }
 }

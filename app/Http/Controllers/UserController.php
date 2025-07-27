@@ -14,9 +14,16 @@ class UserController extends Controller
 {
     public function index()
     {
-        // Memuat relasi untuk efisiensi query
         $users = User::with(['jobTitle', 'department'])->latest()->paginate(10);
-        return view('admin.users.index', compact('users'));
+
+        // PERBAIKAN: Gunakan nama variabel huruf kecil yang konsisten
+        $jobTitles = JobTitle::orderBy('name')->get();
+
+        // PERBAIKAN: Ambil dan kirim juga data departments
+        $departments = Department::orderBy('name')->get();
+
+        // PERBAIKAN: Kirim semua variabel yang dibutuhkan oleh view dan modal
+        return view('admin.users.index', compact('users', 'jobTitles', 'departments'));
     }
 
     public function create()

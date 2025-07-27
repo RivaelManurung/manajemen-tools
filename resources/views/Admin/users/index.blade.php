@@ -18,6 +18,8 @@
                         <th>Nama Lengkap</th>
                         <th>Username</th>
                         <th>Email</th>
+                        <th>Jabatan</th>
+                        <th>Departemen</th>
                         <th>Peran</th>
                         <th>Aksi</th>
                     </tr>
@@ -25,27 +27,29 @@
                 <tbody class="table-border-bottom-0">
                     @forelse ($users as $user)
                     <tr>
-                        <td><strong>{{ $user->name }}</strong></td>
+                        <td><strong>{{ $user->fullname }}</strong></td>
                         <td>{{ $user->username }}</td>
                         <td>{{ $user->email }}</td>
+                        <td>{{ $user->jobTitle?->name }}</td>
+                        <td>{{ $user->department?->name }}</td>
                         <td><span class="badge bg-label-primary">{{ ucfirst($user->peran) }}</span></td>
                         <td>
                             <div class="dropdown">
-                                <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                                <button type="button" class="btn p-0 dropdown-toggle hide-arrow"
+                                    data-bs-toggle="dropdown">
                                     <i class="bx bx-dots-vertical-rounded"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <button class="dropdown-item edit-user" 
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#editUserModal" 
-                                        data-id="{{ $user->id }}"
-                                        data-name="{{ $user->name }}" 
-                                        data-username="{{ $user->username }}"
-                                        data-email="{{ $user->email }}" 
-                                        data-peran="{{ $user->peran }}">
+                                    <button class="dropdown-item edit-user" data-bs-toggle="modal"
+                                        data-bs-target="#editUserModal" data-id="{{ $user->id }}"
+                                        data-fullname="{{ $user->fullname }}" data-username="{{ $user->username }}"
+                                        data-email="{{ $user->email }}" data-peran="{{ $user->peran }}"
+                                        data-job_title_id="{{ $user->job_title_id }}"
+                                        data-department_id="{{ $user->department_id }}">
                                         <i class="bx bx-edit-alt me-1"></i> Edit
                                     </button>
-                                    <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Anda yakin ingin menghapus user ini?');">
+                                    <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST"
+                                        onsubmit="return confirm('Anda yakin ingin menghapus user ini?');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="dropdown-item text-danger">
@@ -58,52 +62,50 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="text-center">Tidak ada data pengguna.</td>
+                        <td colspan="7" class="text-center">Tidak ada data pengguna.</td>
                     </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
+        <div class="mt-3 px-3">
+            {{ $users->links() }}
+        </div>
     </div>
 </div>
 
-{{-- Panggil modal dari file terpisah --}}
+{{-- Memanggil modal --}}
 @include('admin.users.create')
 @include('admin.users.edit')
 @endsection
 
-{{-- Gunakan @push untuk mengirim script ke layout utama --}}
+{{-- Script dipindah ke bagian bawah --}}
+@push('scripts')
 @push('scripts')
 <script>
-    // Pastikan script dieksekusi setelah semua HTML dimuat
     document.addEventListener('DOMContentLoaded', function () {
-        // Cari semua tombol dengan class .edit-user
         const editButtons = document.querySelectorAll('.edit-user');
 
         editButtons.forEach(button => {
             button.addEventListener('click', function () {
-                // Ambil data dari atribut data-* tombol yang diklik
-                const userId = this.dataset.id;
-                const userName = this.dataset.name;
-                const userUsername = this.dataset.username;
-                const userEmail = this.dataset.email;
-                const userPeran = this.dataset.peran;
+                // Mengambil semua data dari atribut data-*
+                const data = this.dataset;
 
-                // Cari modal edit
                 const modal = document.querySelector('#editUserModal');
-                
-                // Cari form di dalam modal
                 const form = modal.querySelector('form');
                 
                 // Set URL action untuk form update
-                const baseUrl = "{{ url('admin/users') }}";
-                form.action = `${baseUrl}/${userId}`;
+                const baseUrl = "{{ url('users') }}"; // Sesuaikan dengan route Anda
+                form.action = `${baseUrl}/${data.id}`;
                 
                 // Isi nilai ke setiap input di dalam modal
-                modal.querySelector('#edit-name').value = userName;
-                modal.querySelector('#edit-username').value = userUsername;
-                modal.querySelector('#edit-email').value = userEmail;
-                modal.querySelector('#edit-peran').value = userPeran;
+                modal.querySelector('#edit-fullname').value = data.fullname;
+                modal.querySelector('#edit-username').value = data.username;
+                modal.querySelector('#edit-email').value = data.email;
+                modal.querySelector('#edit-peran').value = data.peran;
+                // PERBAIKAN: Mengisi nilai untuk dropdown baru
+                modal.querySelector('#edit-job_title_id').value = data.job_title_id;
+                modal.querySelector('#edit-department_id').value = data.department_id;
             });
         });
     });

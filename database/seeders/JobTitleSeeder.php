@@ -14,6 +14,7 @@ class JobTitleSeeder extends Seeder
     {
         DB::table('job_titles')->insert([
             // Data sesuai dengan daftar yang Anda berikan
+            ['name' => 'Administrator', 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Supervisor', 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Foreman', 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Mechanic', 'created_at' => now(), 'updated_at' => now()],
@@ -21,9 +22,6 @@ class JobTitleSeeder extends Seeder
             ['name' => 'Service', 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Welder', 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Electrical', 'created_at' => now(), 'updated_at' => now()],
-            
-            // 'Administrator' juga saya tambahkan karena penting untuk peran sistem
-            ['name' => 'Administrator', 'created_at' => now(), 'updated_at' => now()],
         ]);
     }
 }

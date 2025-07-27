@@ -7,9 +7,11 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\PeralatanController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\BorrowController;
+use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\JobTitleController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\TransaksiController;
+use App\Http\Controllers\StoremanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,13 +42,11 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // CRUD Peralatan (Tools)
     Route::resource('peralatan', PeralatanController::class);
 
+    //Transaksi
+    Route::resource('transaksi', TransaksiController::class);
+
     // CRUD User
     Route::resource('users', UserController::class);
-
-    // Peminjaman & Pengembalian
-    Route::get('borrow', [BorrowController::class, 'index'])->name('borrow.index');
-    Route::post('borrow', [BorrowController::class, 'storeBorrow'])->name('borrow.store');
-    Route::post('return', [BorrowController::class, 'storeReturn'])->name('return.store');
 
     // Job Titles
     Route::resource('job-titles', JobTitleController::class);
@@ -54,16 +54,19 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Departemen
     Route::resource('departments', DepartmentController::class);
 
-    // Log Peminjaman
-    Route::get('logs', [BorrowController::class, 'logs'])->name('logs.index');
+    // Storeman
+    Route::resource('storeman', StoremanController::class);
 });
 
 
 // == USER PANEL (Untuk Mekanik) ==
 Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
 
-    // Halaman untuk mekanik melihat alat yang sedang ia pinjam
-    Route::get('/borrow', [BorrowController::class, 'index'])->name('borrow.index');
+    //Peminjaman
+    // Route::resource('peminjaman', PeminjamanController::class);
+    // peminjaman.index (GET), peminjaman.create (GET), peminjaman.store (POST)
+    Route::resource('peminjaman', PeminjamanController::class)->only(['index', 'create', 'store']);
 
-    // Anda bisa menambahkan route lain untuk mekanik di sini nanti
+    // Route untuk pengembalian dibuat terpisah
+    Route::post('kembalikan', [PeminjamanController::class, 'kembalikan'])->name('kembalikan');
 });

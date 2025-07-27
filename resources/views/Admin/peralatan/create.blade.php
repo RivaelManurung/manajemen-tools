@@ -5,7 +5,7 @@
                 <h5 class="modal-title">Tambah Peralatan Baru</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="{{ route('peralatan.store') }}" method="POST">
+            <form action="{{ route('admin.peralatan.store') }}" method="POST">
                 <div class="modal-body">
                     @csrf
                     <div class="mb-3">

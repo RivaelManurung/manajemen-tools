@@ -11,37 +11,37 @@ class StoremanController extends Controller
     public function index()
     {
         $storemen = Storeman::latest()->paginate(10);
-        return view('admin.storemen.index', compact('storemen'));
+        return view('admin.storeman.index', compact('storemen'));
     }
 
     public function create()
     {
-        return view('admin.storemen.create');
+        return view('admin.storeman.create');
     }
 
     public function store(Request $request)
     {
         $request->validate(['nama' => 'required|string|max:255|unique:storemen']);
         Storeman::create($request->all());
-        return redirect()->route('storemen.index')->with('success', 'Storeman berhasil ditambahkan.');
+        return redirect()->route('admin.storeman.index')->with('success', 'Storeman berhasil ditambahkan.');
     }
 
     public function edit(Storeman $storeman)
     {
-        return view('admin.storemen.edit', compact('storeman'));
+        return view('admin.storeman.edit', compact('storeman'));
     }
 
     public function update(Request $request, Storeman $storeman)
     {
         $request->validate(['nama' => ['required', 'string', 'max:255', Rule::unique('storemen')->ignore($storeman->id)]]);
         $storeman->update($request->all());
-        return redirect()->route('storemen.index')->with('success', 'Data storeman berhasil diperbarui.');
+        return redirect()->route('admin.storeman.index')->with('success', 'Data storeman berhasil diperbarui.');
     }
 
     public function destroy(Storeman $storeman)
     {
         // Anda bisa menambahkan validasi jika storeman pernah bertransaksi
         $storeman->delete();
-        return redirect()->route('storemen.index')->with('success', 'Storeman berhasil dihapus.');
+        return redirect()->route('admin.storeman.index')->with('success', 'Storeman berhasil dihapus.');
     }
 }
