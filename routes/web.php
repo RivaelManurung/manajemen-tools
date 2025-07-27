@@ -7,7 +7,9 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\PeralatanController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\BorrowController ; // Controller khusus Mekanik
+use App\Http\Controllers\BorrowController;
+use App\Http\Controllers\JobTitleController;
+use App\Http\Controllers\DepartmentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,15 +42,20 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     // CRUD User
     Route::resource('users', UserController::class);
-    
+
     // Peminjaman & Pengembalian
     Route::get('borrow', [BorrowController::class, 'index'])->name('borrow.index');
     Route::post('borrow', [BorrowController::class, 'storeBorrow'])->name('borrow.store');
     Route::post('return', [BorrowController::class, 'storeReturn'])->name('return.store');
-    
+
+    // Job Titles
+    Route::resource('job-titles', JobTitleController::class);
+
+    // Departemen
+    Route::resource('departments', DepartmentController::class);
+
     // Log Peminjaman
     Route::get('logs', [BorrowController::class, 'logs'])->name('logs.index');
-
 });
 
 
@@ -57,6 +64,6 @@ Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
 
     // Halaman untuk mekanik melihat alat yang sedang ia pinjam
     Route::get('/borrow', [BorrowController::class, 'index'])->name('borrow.index');
-    
+
     // Anda bisa menambahkan route lain untuk mekanik di sini nanti
 });

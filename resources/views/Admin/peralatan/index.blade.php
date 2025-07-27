@@ -17,7 +17,9 @@
                     <tr>
                         <th>Nama Peralatan</th>
                         <th>Kode</th>
-                        <th>Status</th>
+                        <th>Stok Total</th>
+                        <th>Dipinjam</th>
+                        <th>Tersedia</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -26,13 +28,9 @@
                     <tr>
                         <td><strong>{{ $item->nama }}</strong></td>
                         <td>{{ $item->kode }}</td>
-                        <td>
-                            @if($item->status == 'tersedia')
-                                <span class="badge bg-label-success me-1">Tersedia</span>
-                            @else
-                                <span class="badge bg-label-warning me-1">Dipinjam</span>
-                            @endif
-                        </td>
+                        <td><span class="badge bg-label-info">{{ $item->stok_total }}</span></td>
+                        <td><span class="badge bg-label-warning">{{ $item->stok_dipinjam }}</span></td>
+                        <td><span class="badge bg-label-success">{{ $item->stok_tersedia }}</span></td>
                         <td>
                             <div class="dropdown">
                                 <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
@@ -45,10 +43,10 @@
                                         data-id="{{ $item->id }}"
                                         data-nama="{{ $item->nama }}"
                                         data-kode="{{ $item->kode }}"
-                                        data-status="{{ $item->status }}">
+                                        data-stok_total="{{ $item->stok_total }}">
                                         <i class="bx bx-edit-alt me-1"></i> Edit
                                     </button>
-                                    <form action="{{ route('admin.peralatan.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Anda yakin ingin menghapus data ini?');">
+                                    <form action="{{ route('peralatan.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Anda yakin ingin menghapus data ini?');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="dropdown-item text-danger">
@@ -61,21 +59,23 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="4" class="text-center">Tidak ada data peralatan.</td>
+                        <td colspan="6" class="text-center">Tidak ada data peralatan.</td>
                     </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
+        <div class="mt-3 px-3">
+            {{ $peralatan->links() }}
+        </div>
     </div>
 </div>
 
-{{-- Memanggil file modal dari folder yang sama --}}
+{{-- Memanggil file modal (pastikan pathnya benar atau langsung letakkan di sini) --}}
 @include('admin.peralatan.create')
 @include('admin.peralatan.edit')
 @endsection
 
-{{-- Gunakan @push untuk mengirim script ke layout utama --}}
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -84,14 +84,13 @@
                 const modal = document.querySelector('#editPeralatanModal');
                 const form = modal.querySelector('form');
                 
-                // Membuat URL action form secara dinamis
-                const baseUrl = "{{ url('admin/peralatan') }}";
+                const baseUrl = "{{ url('admin/peralatan') }}"; // Sesuaikan dengan route Anda
                 form.action = `${baseUrl}/${this.dataset.id}`;
                 
                 // Mengisi value pada setiap input di modal
                 modal.querySelector('#edit-nama').value = this.dataset.nama;
                 modal.querySelector('#edit-kode').value = this.dataset.kode;
-                modal.querySelector('#edit-status').value = this.dataset.status;
+                modal.querySelector('#edit-stok_total').value = this.dataset.stok_total;
             });
         });
     });

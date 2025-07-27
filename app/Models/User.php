@@ -16,10 +16,12 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'fullname', // <-- DIUBAH DARI 'name'
+        'username',
         'email',
         'password',
-        'peran', // <-- Tambahkan ini
+        'job_title_id',
+        'department_id',
     ];
 
     /**
@@ -43,5 +45,18 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+    // app/Models/User.php
+
+    // Relasi ke JobTitle
+    public function jobTitle()
+    {
+        return $this->belongsTo(JobTitle::class);
+    }
+
+    // Relasi ke Department
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
     }
 }

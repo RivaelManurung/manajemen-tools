@@ -8,17 +8,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('peralatan', function (Blueprint $table) {
+        Schema::create('storemen', function (Blueprint $table) {
             $table->id();
-            $table->string('nama');
-            $table->string('kode')->unique();
-            $table->unsignedInteger('stok_total')->default(0); // Stok awal/total yang dimiliki
+            $table->string('nama')->unique(); // Hanya berisi nama
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('peralatan');
+        Schema::dropIfExists('storemen');
     }
 };

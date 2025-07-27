@@ -5,15 +5,12 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use App\Models\User;
 
 class AuthController extends Controller
 {
     public function showLoginForm()
     {
-        // 1. Path view diperbaiki sesuai struktur folder Anda
-        return view('Admin.Auth.login'); 
+        return view('auth.login'); // Asumsi path view login
     }
 
     public function login(Request $request)
@@ -26,53 +23,18 @@ class AuthController extends Controller
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
 
-            // 2. Logika Redirect Sesuai Peran
-            $user = Auth::user();
-            if ($user->peran === 'admin' || $user->peran === 'storeman') {
-                return redirect()->intended(route('admin.dashboard'));
-            } elseif ($user->peran === 'mekanik') {
-                // Arahkan ke route baru untuk mekanik
-                return redirect()->intended(route('user.borrow.index')); 
+            // PERBAIKAN: Redirect sesuai peran 'admin' atau 'user'
+            if (Auth::user()->peran === 'admin') {
+                return redirect()->intended('/dashboard'); // Arahkan ke dashboard admin
             }
 
-            // Fallback jika ada peran lain
-            return redirect('/');
+            // Semua peran 'user' diarahkan ke halaman peminjaman
+            return redirect()->intended('/transaksi/create');
         }
 
         return back()->withErrors([
             'username' => 'Username atau password yang Anda masukkan salah.',
         ])->onlyInput('username');
-    }
-
-    // Fungsi register juga menggunakan redirect berbasis peran
-    public function register(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'username' => 'required|string|max:255|unique:users',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'peran' => 'required|in:mekanik,storeman,admin',
-        ]);
-
-        $user = User::create([
-            'name' => $request->name,
-            'username' => $request->username,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'peran' => $request->peran,
-        ]);
-
-        Auth::login($user);
-
-        // Logika Redirect Sesuai Peran setelah registrasi
-        if ($user->peran === 'admin' || $user->peran === 'storeman') {
-            return redirect()->route('admin.dashboard');
-        } elseif ($user->peran === 'mekanik') {
-            return redirect()->route('user.borrow.index');
-        }
-
-        return redirect('/');
     }
 
     public function logout(Request $request)

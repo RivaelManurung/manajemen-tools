@@ -5,9 +5,8 @@
                 <h5 class="modal-title">Edit Data Peralatan</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                {{-- Action form akan diisi oleh Javascript --}}
-                <form action="" method="POST">
+            <form action="" method="POST">
+                <div class="modal-body">
                     @csrf
                     @method('PUT')
                     <div class="mb-3">
@@ -19,17 +18,14 @@
                         <input type="text" id="edit-kode" class="form-control" name="kode" required />
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Status</label>
-                        <select id="edit-status" name="status" class="form-select" required>
-                            <option value="tersedia">Tersedia</option>
-                            <option value="dipinjam">Dipinjam</option>
-                        </select>
+                        <label class="form-label">Stok Total</label>
+                        <input type="number" id="edit-stok_total" class="form-control" name="stok_total" required min="0" />
                     </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="submit" class="btn btn-primary">Update Data</button>
-            </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Update Data</button>
+                </div>
             </form>
         </div>
     </div>
