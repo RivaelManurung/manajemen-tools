@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('transaksi_id')->constrained('transaksis')->onDelete('cascade');
             $table->foreignId('peralatan_id')->constrained('peralatan');
             $table->unsignedInteger('jumlah');
+            $table->enum('kondisi', ['sangat baik', 'baik', 'rusak']); 
             $table->timestamps();
         });
     }

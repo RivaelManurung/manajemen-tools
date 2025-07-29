@@ -40,10 +40,7 @@
 <body>
     <div class="layout-wrapper layout-content-navbar">
         <div class="layout-container">
-            @if(Auth::user()->role == 'admin')
             @include('admin.layout.sidebar')
-            @endif
-
             <div class="layout-page">
                 <nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
                     id="layout-navbar">
@@ -100,6 +97,7 @@
                                         <div class="dropdown-divider"></div>
                                     </li>
                                     <li>
+                                        {{-- ✅ Form Logout yang lebih aman --}}
                                         <form action="{{ route('logout') }}" method="POST" id="logout-form">
                                             @csrf
                                             <a class="dropdown-item" href="#"

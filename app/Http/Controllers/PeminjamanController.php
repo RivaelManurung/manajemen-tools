@@ -19,11 +19,10 @@ class PeminjamanController extends Controller
     public function index(): View
     {
         $riwayatTransaksi = Transaksi::where('user_id', Auth::id())
-            ->with(['storeman', 'details.peralatan'])
+            ->with(['storeman', 'details.peralatan', 'pengembalian'])
             ->latest('tanggal_transaksi')
             ->paginate(10);
-
-        // Mengarahkan ke view index, BUKAN create
+            
         return view('user.peminjaman.index', compact('riwayatTransaksi'));
     }
 
@@ -32,18 +31,14 @@ class PeminjamanController extends Controller
      */
     public function create(): View
     {
-        // Data untuk tab Peminjaman (alat yang stoknya ada)
         $peralatanTersedia = Peralatan::orderBy('nama')->get()->map(function ($item) {
             $item->stok_tersedia = $item->stokTersedia();
             return $item;
         })->filter(function ($item) {
             return $item->stok_tersedia > 0;
         });
-
-        // Data untuk tab Pengembalian (alat yang sedang dipinjam oleh user)
+        
         $peralatanDipinjam = Auth::user()->peralatanYangSedangDipinjam();
-
-        // Data untuk dropdown Storeman
         $daftarStoreman = Storeman::orderBy('nama')->get();
 
         return view('user.peminjaman.create', [
@@ -53,52 +48,8 @@ class PeminjamanController extends Controller
         ]);
     }
 
-
-    /**
-     * Method untuk menyimpan transaksi PENGEMBALIAN.
-     */
-    public function kembalikan(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'storeman_id' => 'required|exists:storemen,id',
-            'items' => 'required|array|min:1',
-            'items.*.peralatan_id' => 'required|exists:peralatan,id',
-            'items.*.jumlah' => 'required|integer|min:1',
-        ]);
-
-        // Validasi tambahan: pastikan user tidak mengembalikan lebih dari yang dipinjam
-        $peralatanDipinjam = Auth::user()->peralatanYangSedangDipinjam()->keyBy('peralatan_id');
-        foreach ($request->items as $item) {
-            if (!$peralatanDipinjam->has($item['peralatan_id']) || $item['jumlah'] > $peralatanDipinjam[$item['peralatan_id']]->jumlah_dipinjam) {
-                $namaPeralatan = Peralatan::find($item['peralatan_id'])->nama;
-                return back()->withInput()->with('error', "Jumlah pengembalian untuk '{$namaPeralatan}' melebihi jumlah yang sedang dipinjam.");
-            }
-        }
-
-        // Buat transaksi baru dengan tipe 'pengembalian'
-        $transaksi = Transaksi::create([
-            'kode_transaksi' => 'KEMBALI-' . time(),
-            'tipe' => 'pengembalian',
-            'user_id' => Auth::id(),
-            'storeman_id' => $request->storeman_id,
-            'tanggal_transaksi' => now(),
-            'catatan' => $request->catatan,
-        ]);
-
-        foreach ($request->items as $item) {
-            $transaksi->details()->create([
-                'peralatan_id' => $item['peralatan_id'],
-                'jumlah' => $item['jumlah'],
-            ]);
-        }
-
-        return redirect()->route('peminjaman.index')->with('success', 'Pengembalian berhasil dicatat.');
-    }
-
-
     /**
      * METHOD STORE: Menyimpan data peminjaman baru.
-     * (Tidak ada perubahan di sini, sudah benar)
      */
     public function store(Request $request): RedirectResponse
     {
@@ -107,11 +58,12 @@ class PeminjamanController extends Controller
             'items' => 'required|array|min:1',
             'items.*.peralatan_id' => 'required|exists:peralatan,id',
             'items.*.jumlah' => 'required|integer|min:1',
+            'catatan' => 'nullable|string|max:255',
         ]);
 
         DB::beginTransaction();
         try {
-            // Cek ketersediaan stok sebelum transaksi
+            // Cek ketersediaan stok
             foreach ($request->items as $item) {
                 $peralatan = Peralatan::find($item['peralatan_id']);
                 if ($item['jumlah'] > $peralatan->stokTersedia()) {
@@ -120,16 +72,16 @@ class PeminjamanController extends Controller
                 }
             }
 
-            // Buat transaksi utama
+            // Buat transaksi
             $transaksi = Transaksi::create([
                 'kode_transaksi' => 'PINJAM-' . time(),
                 'tipe' => 'peminjaman',
                 'user_id' => Auth::id(),
                 'storeman_id' => $request->storeman_id,
                 'tanggal_transaksi' => now(),
+                'catatan' => $request->catatan,
             ]);
 
-            // Buat detail transaksi
             foreach ($request->items as $item) {
                 $transaksi->details()->create([
                     'peralatan_id' => $item['peralatan_id'],
@@ -138,7 +90,45 @@ class PeminjamanController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('user.peminjaman.index')->with('success', 'Peminjaman berhasil diajukan.');
+            return redirect()->route('peminjaman.index')->with('success', 'Peminjaman berhasil diajukan.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * METHOD KEMBALIKAN: Membuat transaksi pengembalian.
+     */
+    public function kembalikan(Request $request, Transaksi $peminjaman): RedirectResponse
+    {
+        $request->validate(['storeman_id' => 'required|exists:storemen,id']);
+
+        if ($peminjaman->user_id !== Auth::id() || $peminjaman->tipe !== 'peminjaman' || $peminjaman->pengembalian) {
+            return redirect()->route('peminjaman.index')->with('error', 'Transaksi tidak valid untuk dikembalikan.');
+        }
+        
+        DB::beginTransaction();
+        try {
+            $pengembalian = Transaksi::create([
+                'kode_transaksi'      => 'KEMBALI-' . time(),
+                'tipe'                => 'pengembalian',
+                'user_id'             => Auth::id(),
+                'storeman_id'         => $request->storeman_id,
+                'tanggal_transaksi'   => now(),
+                'peminjaman_id'       => $peminjaman->id,
+            ]);
+
+            foreach ($peminjaman->details as $detail) {
+                $pengembalian->details()->create([
+                    'peralatan_id' => $detail->peralatan_id,
+                    'jumlah' => $detail->jumlah,
+                    'kondisi' => 'baik', // Anda bisa menambahkan input kondisi di modal konfirmasi jika perlu
+                ]);
+            }
+            
+            DB::commit();
+            return redirect()->route('peminjaman.index')->with('success', 'Pengembalian berhasil dicatat.');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());

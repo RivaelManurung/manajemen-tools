@@ -11,9 +11,75 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
+
 
 class TransaksiController extends Controller
 {
+    /**
+     * Menampilkan riwayat SEMUA transaksi dengan filter untuk ADMIN.
+     */
+    public function index(Request $request)
+    {
+        $transaksiQuery = Transaksi::with(['user', 'storeman'])->latest('tanggal_transaksi');
+
+        // Menerapkan filter
+        $this->applyDateFilters($transaksiQuery, $request);
+
+        $transaksis = $transaksiQuery->paginate(15)->withQueryString();
+
+        return view('admin.transaksi.index', compact('transaksis'));
+    }
+
+    /**
+     * Menampilkan detail transaksi (untuk modal AJAX).
+     */
+    public function show(Transaksi $transaksi)
+    {
+        $transaksi->load(['user', 'storeman', 'details.peralatan']);
+        return response()->json($transaksi);
+    }
+
+    /**
+     * Fungsi untuk ekspor laporan ke PDF.
+     */
+    public function exportPDF(Request $request)
+    {
+        $transaksiQuery = Transaksi::with(['user', 'storeman', 'details.peralatan'])->latest('tanggal_transaksi');
+
+        // Menerapkan filter yang sama
+        $this->applyDateFilters($transaksiQuery, $request);
+
+        $transaksis = $transaksiQuery->get();
+        $tanggalCetak = Carbon::now()->format('d M Y');
+
+        $pdf = Pdf::loadView('admin.transaksi.pdf', compact('transaksis', 'tanggalCetak'));
+        $pdf->setPaper('a4', 'landscape');
+        return $pdf->download('laporan-transaksi-' . time() . '.pdf');
+    }
+
+    /**
+     * Method private untuk logika filter agar tidak duplikat kode (DRY Principle).
+     */
+    private function applyDateFilters($query, Request $request)
+    {
+        if ($request->filled('filter')) {
+            switch ($request->filter) {
+                case 'harian':
+                    $query->whereDate('tanggal_transaksi', Carbon::today());
+                    break;
+                case 'mingguan':
+                    $query->whereBetween('tanggal_transaksi', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
+                    break;
+                case 'bulanan':
+                    $query->whereMonth('tanggal_transaksi', Carbon::now()->month);
+                    break;
+            }
+        } elseif ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('tanggal_transaksi', [$request->start_date, $request->end_date]);
+        }
+    }
     /**
      * Menampilkan form utama untuk membuat transaksi (peminjaman & pengembalian).
      */

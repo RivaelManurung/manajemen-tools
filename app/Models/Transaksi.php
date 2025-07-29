@@ -29,6 +29,8 @@ class Transaksi extends Model
         'user_id',
         'tanggal_transaksi',
         'catatan',
+        'storeman_id',
+        'peminjaman_id', 
     ];
 
     /**
@@ -53,7 +55,7 @@ class Transaksi extends Model
      * Satu transaksi dikelola oleh satu storeman.
      */
     public function storeman(): BelongsTo
-    {   
+    {
         return $this->belongsTo(Storeman::class);
     }
 }

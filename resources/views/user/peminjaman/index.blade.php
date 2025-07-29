@@ -1,160 +1,56 @@
-{{-- @extends('admin.layout.main')
+@extends('user.layout.main')
 
-@section('title', 'Riwayat Peminjaman Saya')
+@section('title', 'Riwayat Transaksi')
 
 @section('content')
 <div class="container-xxl flex-grow-1 container-p-y">
     <div class="card">
-        <div class="card-header d-flex justify-content-between">
-            <h5 class="mb-0">Riwayat Transaksi Saya</h5>
-            <a href="{{ route('user.peminjaman.create') }}" class="btn btn-primary">
-                <i class="bx bx-plus me-1"></i> Buat Peminjaman Baru
-            </a>
+        <div class="card-header">
+            <h5 class="mb-0">Riwayat Semua Transaksi</h5>
         </div>
-        <div class="table-responsive text-nowrap">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Tipe</th>
-                        <th>Detail Barang</th>
-                        <th>Tanggal</th>
-                        <th>Status / Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($riwayatTransaksi as $transaksi)
-                    <tr>
-                        <td>
-                            @if($transaksi->tipe == 'peminjaman')
-                            <span class="badge bg-label-warning">Peminjaman</span>
-                            @else
-                            <span class="badge bg-label-success">Pengembalian</span>
-                            @endif
-                        </td>
-                        <td>
-                            <ul>
-                                @foreach($transaksi->details as $detail)
-                                <li>{{ $detail->peralatan?->nama }} ({{ $detail->jumlah }})</li>
-                                @endforeach
-                            </ul>
-                        </td>
-                        <td>{{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->format('d M Y') }}</td>
-                        <td>
-                            @if($transaksi->tipe == 'peminjaman')
-                            @if($transaksi->pengembalian)
-                            <span class="badge bg-label-success">Lunas</span>
-                            @else
-                            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
-                                data-bs-target="#returnModal-{{ $transaksi->id }}">
-                                Kembalikan
-                            </button>
-                            @endif
-                            @else
-                            <span class="text-muted">-</span>
-                            @endif
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="4" class="text-center">Anda belum memiliki riwayat transaksi.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        <div class="card-footer">
-            {{ $riwayatTransaksi->links() }}
-        </div>
-    </div>
-</div>
 
-@foreach($riwayatTransaksi->where('tipe', 'peminjaman') as $transaksi)
-<div class="modal fade" id="returnModal-{{ $transaksi->id }}" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Konfirmasi Pengembalian</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form action="{{ route('user.kembalikan', $transaksi->id) }}" method="POST">
-                @csrf
-                <div class="modal-body">
-                    <p>Anda akan mengembalikan semua barang dari transaksi <strong>{{ $transaksi->kode_transaksi
-                            }}</strong>. Silakan pilih Storeman yang menerima.</p>
-                    <div class="mb-3">
-                        <label class="form-label">Storeman Penerima</label>
-                        <select name="storeman_id" class="form-select" required>
-                            <option value="">-- Pilih Storeman --</option>
-                            @foreach(App\Models\Storeman::all() as $storeman)
-                            <option value="{{ $storeman->id }}">{{ $storeman->nama }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+        <div class="card-body">
+            <form action="{{ route('user.transaksi.index') }}" method="GET" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label">Filter Cepat</label>
+                    <select name="filter" class="form-select">
+                        <option value="">Semua</option>
+                        <option value="harian" @if(request('filter')=='harian' ) selected @endif>Hari Ini</option>
+                        <option value="mingguan" @if(request('filter')=='mingguan' ) selected @endif>Minggu Ini</option>
+                        <option value="bulanan" @if(request('filter')=='bulanan' ) selected @endif>Bulan Ini</option>
+                    </select>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">Ya, Kembalikan</button>
+                <div class="col-md-3">
+                    <label class="form-label">Tanggal Mulai</label>
+                    <input type="date" name="start_date" class="form-control" value="{{ request('start_date') }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Tanggal Selesai</label>
+                    <input type="date" name="end_date" class="form-control" value="{{ request('end_date') }}">
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                    <a href="{{ route('transaksi.index') }}" class="btn btn-secondary">Reset</a>
                 </div>
             </form>
         </div>
-    </div>
-</div>
-@endforeach
 
-@endsection --}}
-
-@extends('admin.layout.main')
-
-@section('title', 'Riwayat Peminjaman Saya')
-
-@section('content')
-<div class="container-xxl flex-grow-1 container-p-y">
-    {{-- Notifikasi dari Session (Sudah ada) --}}
-    @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <strong>Berhasil!</strong> {{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    @endif
-    @if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <strong>Gagal!</strong> {{ session('error') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    @endif
-
-    {{-- ✅ SOLUSI: TAMBAHKAN BLOK INI UNTUK MENAMPILKAN ERROR VALIDASI --}}
-    @if ($errors->any())
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <strong>Terjadi Kesalahan!</strong> Mohon periksa input Anda:
-        <ul>
-            @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    @endif
-    <div class="card">
-        <div class="card-header d-flex justify-content-between">
-            <h5 class="mb-0">Riwayat Transaksi Saya</h5>
-            <a href="{{ route('user.peminjaman.create') }}" class="btn btn-primary">
-                <i class="bx bx-plus me-1"></i> Buat Peminjaman Baru
-            </a>
-        </div>
         <div class="table-responsive text-nowrap">
             <table class="table table-hover">
                 <thead>
                     <tr>
+                        <th>Kode</th>
                         <th>Tipe</th>
-                        <th>Detail Barang</th>
                         <th>Tanggal</th>
-                        <th>Status Pengembalian</th> {{-- Kolom baru untuk info --}}
+                        <th>User</th>
+                        <th>Storeman</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($riwayatTransaksi as $transaksi)
+                    @forelse ($transaksis as $transaksi)
                     <tr>
+                        <td><strong>{{ $transaksi->kode_transaksi }}</strong></td>
                         <td>
                             @if($transaksi->tipe == 'peminjaman')
                             <span class="badge bg-label-warning">Peminjaman</span>
@@ -162,33 +58,97 @@
                             <span class="badge bg-label-success">Pengembalian</span>
                             @endif
                         </td>
+                        <td>{{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->format('d M Y, H:i') }}</td>
+                        <td>{{ $transaksi->user?->fullname ?? 'N/A' }}</td>
+                        <td>{{ $transaksi->storeman?->nama ?? '-' }}</td>
                         <td>
-                            <ul>
-                                @foreach($transaksi->details as $detail)
-                                <li>{{ $detail->peralatan?->nama }} ({{ $detail->jumlah }})</li>
-                                @endforeach
-                            </ul>
-                        </td>
-                        <td>{{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->format('d M Y') }}</td>
-                        <td>
-                            {{-- Di sini Anda bisa menambahkan logika untuk menampilkan tombol "Kembalikan"
-                            jika barang dari transaksi peminjaman ini belum sepenuhnya dikembalikan.
-                            Ini memerlukan logika kalkulasi yang lebih kompleks.
-                            Untuk saat ini, link ke form pengembalian bisa diletakkan di header. --}}
-                            <span class="text-muted">Completed</span>
+                            <button type="button" class="btn btn-sm btn-info view-details" data-bs-toggle="modal"
+                                data-bs-target="#detailModal" data-url="{{ route('transaksi.show', $transaksi->id) }}">
+                                Detail
+                            </button>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="4" class="text-center">Anda belum memiliki riwayat transaksi.</td>
+                        <td colspan="6" class="text-center">Tidak ada data transaksi.</td>
                     </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-        <div class="card-footer">
-            {{ $riwayatTransaksi->links() }}
+        <div class="card-footer d-flex justify-content-between align-items-center">
+            {{ $transaksis->links() }}
+            <a href="{{ route('transaksi.exportPDF', request()->query()) }}" class="btn btn-success">
+                <i class="bx bxs-file-pdf me-1"></i> Export PDF
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="detailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailModalTitle">Detail Transaksi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="detailModalBody">
+                <p class="text-center">Memuat data...</p>
+            </div>
         </div>
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    const detailModal = document.getElementById('detailModal');
+    detailModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const url = button.getAttribute('data-url');
+        const modalTitle = detailModal.querySelector('.modal-title');
+        const modalBody = detailModal.querySelector('.modal-body');
+        
+        modalTitle.textContent = 'Detail Transaksi';
+        modalBody.innerHTML = '<p class="text-center">Memuat data...</p>';
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                modalTitle.textContent = `Detail Transaksi: ${data.kode_transaksi}`;
+                
+                let detailsHtml = `
+                    <p><strong>User:</strong> ${data.user.fullname}</p>
+                    <p><strong>Storeman:</strong> ${data.storeman ? data.storeman.nama : '-'}</p>
+                    <p><strong>Tanggal:</strong> ${new Date(data.tanggal_transaksi).toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' })}</p>
+                    <p><strong>Tipe:</strong> ${data.tipe}</p>
+                    <h6 class="mt-4">Barang yang Ditransaksikan:</h6>
+                    <table class="table">
+                        <thead>
+                            <tr><th>Nama Barang</th><th>Jumlah</th><th>Kondisi</th></tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                data.details.forEach(detail => {
+                    detailsHtml += `
+                        <tr>
+                            <td>${detail.peralatan.nama}</td>
+                            <td>${detail.jumlah}</td>
+                            <td>${data.tipe === 'pengembalian' ? (detail.kondisi ? detail.kondisi.replace('_', ' ') : '-') : '-'}</td>
+                        </tr>
+                    `;
+                });
+
+                detailsHtml += '</tbody></table>';
+                modalBody.innerHTML = detailsHtml;
+            })
+            .catch(error => {
+                modalBody.innerHTML = '<p class="text-center text-danger">Gagal memuat data.</p>';
+                console.error('Fetch Error:', error);
+            });
+    });
+});
+</script>
+@endpush

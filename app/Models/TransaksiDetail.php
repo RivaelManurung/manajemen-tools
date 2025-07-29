@@ -26,6 +26,7 @@ class TransaksiDetail extends Model
         'transaksi_id',
         'peralatan_id',
         'jumlah',
+        'kondisi',
     ];
 
     /**
