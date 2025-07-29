@@ -1,101 +1,382 @@
-@extends('admin.layout.main')
+@extends('user.layout.main')
 
-@section('title', 'Form Peminjaman Peralatan')
+@section('title', 'Manajemen Tools')
+
+@push('styles')
+<style>
+    /* Memberi latar belakang gradien ke seluruh halaman */
+    body {
+        background: linear-gradient(125deg, #e0eafc, #d3e1f7);
+    }
+
+    /* Kontainer flex untuk menengahkan card */
+    .tool-management-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 2rem 1rem;
+    }
+
+    /* Card utama */
+    .tool-management-card {
+        background-color: #ffffff;
+        border-radius: 20px;
+        padding: 35px;
+        box-shadow: 0 15px 45px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 480px;
+    }
+
+    .card-title {
+        text-align: center;
+        font-weight: 600;
+        font-size: 1.5rem;
+        margin-bottom: 25px;
+    }
+
+    /* Navigasi Tab */
+    .nav-pills-container {
+        background-color: #f0f2f5;
+        border-radius: 12px;
+        padding: 5px;
+        display: inline-flex;
+        margin-bottom: 25px;
+    }
+
+    .nav-pills .nav-link {
+        border-radius: 10px;
+        padding: 8px 20px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .nav-pills .nav-link:not(.active) {
+        background: transparent;
+        color: #6c757d;
+    }
+
+    .nav-pills .nav-link.active {
+        background-color: #0d6efd;
+        color: white;
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+    }
+
+    /* Form dan Tombol */
+    .form-label {
+        font-weight: 500;
+        color: #555;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 10px;
+        padding: 12px;
+    }
+
+    .add-tool-btn {
+        color: #0d6efd;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 15px;
+    }
+
+    .btn-save {
+        background-color: #e9ecef;
+        border: none;
+        color: #6c757d;
+        font-weight: 600;
+        padding: 14px;
+        border-radius: 12px;
+        width: 100%;
+        margin-top: 25px;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .btn-save.active {
+        background-color: #0d6efd;
+        color: white;
+        cursor: pointer;
+    }
+
+    /* Daftar item terpilih */
+    .tool-list-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        padding: 0.75rem 1rem;
+        background-color: #e9ecef;
+        border-radius: 0.5rem;
+    }
+
+    .quantity-input {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        border-radius: 0.5rem;
+        text-align: center;
+        border-color: #ced4da;
+    }
+
+    .remove-item-btn {
+        background-color: #dc3545;
+        color: white;
+        border-radius: 0.5rem;
+        width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        line-height: 1;
+        border: none;
+    }
+
+    /* Tombol Kondisi Barang */
+    .condition-btn-group .btn {
+        background-color: #f0f2f5;
+        color: #6c757d;
+        border: 1px solid #dee2e6;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .condition-btn-group .btn-check:checked+.btn {
+        background-color: #0d6efd;
+        color: white;
+        border-color: #0d6efd;
+        box-shadow: 0 2px 8px rgba(13, 110, 253, 0.3);
+    }
+</style>
+@endpush
 
 @section('content')
-<div class="container-xxl flex-grow-1 container-p-y">
-    <div class="row d-flex justify-content-center">
-        <div class="col-12 col-md-10 col-lg-8">
+<div class="tool-management-container">
+    <div class="tool-management-card">
+        <h4 class="card-title">Manajemen Tools</h4>
 
-            @if(session('success')) <div class="alert alert-success">{{ session('success') }}</div> @endif
-            @if(session('error')) <div class="alert alert-danger">{{ session('error') }}</div> @endif
+        {{-- Navigasi Tab --}}
+        <div class="d-flex justify-content-center">
+            <div class="nav-pills-container">
+                <ul class="nav nav-pills" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#peminjaman-pane"
+                            type="button">Peminjaman</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#pengembalian-pane"
+                            type="button">Pengembalian</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
 
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Form Peminjaman Peralatan</h5>
-                </div>
-                <div class="card-body">
-                    <form action="{{ route('user.peminjaman.store') }}" method="POST">
-                        @csrf
+        {{-- Notifikasi --}}
+        @if(session('success')) <div class="alert alert-success mt-3">{{ session('success') }}</div> @endif
+        @if(session('error')) <div class="alert alert-danger mt-3">{{ session('error') }}</div> @endif
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Nama Peminjam</label>
-                                <input type="text" class="form-control" value="{{ Auth::user()->fullname }}" disabled>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="storeman_id" class="form-label">Petugas (Storeman)</label>
-                                <select name="storeman_id" id="storeman_id" class="form-select" required>
-                                    <option value="">-- Pilih Petugas --</option>
-                                    @foreach ($daftarStoreman as $storeman)
-                                    <option value="{{ $storeman->id }}">{{ $storeman->nama }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
+        <div class="tab-content mt-4">
+            {{-- ====================== PANEL PEMINJAMAN ====================== --}}
+            <div class="tab-pane fade show active" id="peminjaman-pane" role="tabpanel">
+                <form id="peminjamanForm" action="{{ route('peminjaman.store') }}" method="POST">
+                    @csrf
+                    <div class="mb-3">
+                        <label class="form-label">Nama Mekanik</label>
+                        <input type="text" class="form-control" value="{{ Auth::user()->fullname }}" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Storeman</label>
+                        <select class="form-select" name="storeman_id" required>
+                            <option value="">Pilih Storeman</option>
+                            @foreach($daftarStoreman as $storeman)
+                            <option value="{{ $storeman->id }}">{{ $storeman->nama }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div id="peminjaman-item-list" class="mt-4"></div>
+                    <a href="#" class="add-tool-btn" data-bs-toggle="modal" data-bs-target="#peminjamanToolModal"><i
+                            class="bx bx-plus"></i> Tambah Tools</a>
+                    <button type="submit" class="btn btn-save">Simpan Peminjaman</button>
+                </form>
+            </div>
 
-                        <hr>
+            {{-- ====================== PANEL PENGEMBALIAN ====================== --}}
+            <div class="tab-pane fade" id="pengembalian-pane" role="tabpanel">
+                <form id="pengembalianForm" action="{{ route('peminjaman.kembalikan') }}" method="POST">
+                    @csrf
+                    <div class="mb-3">
+                        <label class="form-label">Nama Mekanik</label>
+                        <input type="text" class="form-control" value="{{ Auth::user()->fullname }}" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Storeman</label>
+                        <select class="form-select" name="storeman_id" required>
+                            <option value="">Pilih Storeman</option>
+                            @foreach($daftarStoreman as $storeman)
+                            <option value="{{ $storeman->id }}">{{ $storeman->nama }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div id="pengembalian-item-list" class="mt-4"></div>
+                    <a href="#" class="add-tool-btn" data-bs-toggle="modal" data-bs-target="#pengembalianToolModal"><i
+                            class="bx bx-plus"></i> Tambah Tools untuk Dikembalikan</a>
+                    <button type="submit" class="btn btn-save">Simpan Pengembalian</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
-                        <h6>Detail Peralatan</h6>
-                        <div class="item-list">
-                            <div class="row item-row mb-2">
-                                <div class="col-md-7">
-                                    <select name="items[0][peralatan_id]" class="form-select" required>
-                                        <option value="">-- Pilih Peralatan --</option>
-                                        @foreach ($daftarPeralatan as $peralatan)
-                                        <option value="{{ $peralatan->id }}">{{ $peralatan->nama }} (Sisa: {{
-                                            $peralatan->stok_tersedia }})</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <input type="number" name="items[0][jumlah]" class="form-control"
-                                        placeholder="Jumlah" min="1" required>
-                                </div>
-                                <div class="col-md-2">
-                                    <button type="button" class="btn btn-danger remove-item-btn"
-                                        style="display: none;">Hapus</button>
-                                </div>
-                            </div>
-                        </div>
+{{-- ====================== MODAL ====================== --}}
+<div class="modal fade" id="peminjamanToolModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Pilih Tools</h5><button type="button" class="btn-close"
+                    data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="text" class="form-control mb-3 tool-search-input" data-target-list="peminjaman"
+                    placeholder="🔍 Cari nama tool...">
+                <div class="modal-tool-list list-group list-group-flush"></div>
+            </div>
+        </div>
+    </div>
+</div>
 
-                        <button type="button" class="btn btn-sm btn-secondary mt-2 add-item-btn">Tambah Item</button>
-
-                        <div class="mt-4">
-                            <button type="submit" class="btn btn-primary d-grid w-100">Ajukan Peminjaman</button>
-                        </div>
-                    </form>
-                </div>
+<div class="modal fade" id="pengembalianToolModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Pilih Tools yang Akan Dikembalikan</h5><button type="button" class="btn-close"
+                    data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="text" class="form-control mb-3 tool-search-input" data-target-list="pengembalian"
+                    placeholder="🔍 Cari nama tool...">
+                <div class="modal-tool-list list-group list-group-flush"></div>
             </div>
         </div>
     </div>
 </div>
 @endsection
 
+
 @push('scripts')
 <script>
-    // Script untuk menambah dan menghapus baris item di kedua tab
     document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('.add-item-btn').forEach(button => {
-            let itemIndex = 1;
-            button.addEventListener('click', function() {
-                const itemList = this.previousElementSibling;
-                const firstRow = itemList.querySelector('.item-row');
-                const newRow = firstRow.cloneNode(true);
+    // DATA DARI CONTROLLER
+    const dataSources = {
+        peminjaman: @json($peralatanTersedia),
+        pengembalian: @json($peralatanDipinjam)
+    };
 
-                newRow.querySelector('select').name = `items[${itemIndex}][peralatan_id]`;
-                newRow.querySelector('input').name = `items[${itemIndex}][jumlah]`;
-                newRow.querySelector('select').value = '';
-                newRow.querySelector('input').value = '';
+    // FUNGSI UMUM UNTUK MENGATUR SETIAP FORM (PEMINJAMAN & PENGEMBALIAN)
+    const setupForm = (config) => {
+        const form = document.getElementById(config.formId);
+        if (!form) return;
+        
+        const saveButton = form.querySelector('.btn-save');
+        const listContainer = document.getElementById(config.listContainerId);
+        const modalEl = document.getElementById(config.modalId);
+        const modal = new bootstrap.Modal(modalEl);
+        const modalSearchInput = modalEl.querySelector('.tool-search-input');
+        const modalListContainer = modalEl.querySelector('.modal-tool-list');
+        let itemIndex = 0;
 
-                const removeBtn = newRow.querySelector('.remove-item-btn');
-                removeBtn.style.display = 'inline-block';
-                removeBtn.addEventListener('click', function () { newRow.remove(); });
-                
-                itemList.appendChild(newRow);
-                itemIndex++;
+        const checkFormValidity = () => {
+            const requiredInputs = form.querySelectorAll('[required]');
+            let allValid = listContainer.children.length > 0;
+            requiredInputs.forEach(input => { if (!input.value) allValid = false; });
+            saveButton.classList.toggle('active', allValid);
+        };
+
+        const renderModalList = (data, query = '') => {
+            modalListContainer.innerHTML = '';
+            const filteredData = data.filter(d => {
+                const name = d.nama_peralatan || d.nama;
+                return name.toLowerCase().includes(query.toLowerCase());
             });
+            
+            if (filteredData.length === 0) {
+                modalListContainer.innerHTML = '<p class="text-center text-muted p-3">Tool tidak ditemukan.</p>';
+                return;
+            }
+
+            filteredData.forEach(tool => {
+                const id = tool.peralatan_id || tool.id;
+                const name = tool.nama_peralatan || tool.nama;
+                const stock = tool.jumlah_dipinjam || tool.stok_tersedia;
+                const isAdded = form.querySelector(`input[name$="[peralatan_id]"][value="${id}"]`);
+                const btnText = isAdded ? 'Ditambahkan' : 'Pilih';
+
+                modalListContainer.insertAdjacentHTML('beforeend', `
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">${name}</h6>
+                            <small class="text-muted">${config.stockLabel}: ${stock}</small>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-primary select-tool-btn" 
+                                data-id="${id}" data-name="${name}" data-stock="${stock}" ${isAdded ? 'disabled' : ''}>
+                            ${btnText}
+                        </button>
+                    </div>`);
+            });
+        };
+
+        const addToolToForm = (id, name, maxStock) => {
+            listContainer.insertAdjacentHTML('beforeend', `
+                <div class="tool-list-item" data-id="${id}">
+                    <span class="fw-medium">${name}</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <input type="number" name="items[${itemIndex}][jumlah]" class="form-control form-control-sm quantity-input" value="1" min="1" max="${maxStock}" required style="width: 70px;">
+                        <input type="hidden" name="items[${itemIndex}][peralatan_id]" value="${id}">
+                        <button type="button" class="btn remove-item-btn p-0">&times;</button>
+                    </div>
+                </div>`);
+            itemIndex++;
+            checkFormValidity();
+        };
+
+        modalEl.addEventListener('show.bs.modal', () => renderModalList(config.dataSource, modalSearchInput.value));
+        modalSearchInput.addEventListener('input', (e) => renderModalList(config.dataSource, e.target.value));
+
+        modalListContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('select-tool-btn')) {
+                const { id, name, stock } = e.target.dataset;
+                addToolToForm(id, name, stock);
+                modal.hide();
+            }
         });
+
+        listContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('remove-item-btn')) {
+                e.target.closest('[data-id]').remove();
+                checkFormValidity();
+            }
+        });
+
+        form.addEventListener('input', checkFormValidity);
+        checkFormValidity();
+    };
+
+    // INISIALISASI KEDUA FORM
+    setupForm({
+        formId: 'peminjamanForm',
+        listContainerId: 'peminjaman-item-list',
+        modalId: 'peminjamanToolModal',
+        dataSource: dataSources.peminjaman,
+        stockLabel: 'Tersedia'
     });
+
+    setupForm({
+        formId: 'pengembalianForm',
+        listContainerId: 'pengembalian-item-list',
+        modalId: 'pengembalianToolModal',
+        dataSource: dataSources.pengembalian,
+        stockLabel: 'Dipinjam'
+    });
+});
 </script>
 @endpush

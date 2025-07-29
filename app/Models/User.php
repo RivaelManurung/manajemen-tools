@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 
 class User extends Authenticatable
 {
@@ -58,5 +59,39 @@ class User extends Authenticatable
     public function department()
     {
         return $this->belongsTo(Department::class);
+    }
+    public function peralatanYangSedangDipinjam()
+    {
+        // Mengambil total peminjaman per item
+        $peminjaman = DB::table('transaksis')
+            ->join('transaksi_details', 'transaksis.id', '=', 'transaksi_details.transaksi_id')
+            ->where('transaksis.user_id', $this->id)
+            ->where('transaksis.tipe', 'peminjaman')
+            ->groupBy('transaksi_details.peralatan_id')
+            ->select('peralatan_id', DB::raw('SUM(jumlah) as total_dipinjam'));
+
+        // Mengambil total pengembalian per item
+        $pengembalian = DB::table('transaksis')
+            ->join('transaksi_details', 'transaksis.id', '=', 'transaksi_details.transaksi_id')
+            ->where('transaksis.user_id', $this->id)
+            ->where('transaksis.tipe', 'pengembalian')
+            ->groupBy('transaksi_details.peralatan_id')
+            ->select('peralatan_id', DB::raw('SUM(jumlah) as total_dikembalikan'));
+
+        // Menggabungkan keduanya untuk mendapatkan sisa pinjaman
+        return DB::table('peralatan')
+            ->leftJoinSub($peminjaman, 'peminjaman', function ($join) {
+                $join->on('peralatan.id', '=', 'peminjaman.peralatan_id');
+            })
+            ->leftJoinSub($pengembalian, 'pengembalian', function ($join) {
+                $join->on('peralatan.id', '=', 'pengembalian.peralatan_id');
+            })
+            ->select(
+                'peralatan.id as peralatan_id',
+                'peralatan.nama as nama_peralatan',
+                DB::raw('IFNULL(peminjaman.total_dipinjam, 0) - IFNULL(pengembalian.total_dikembalikan, 0) as jumlah_dipinjam')
+            )
+            ->where(DB::raw('IFNULL(peminjaman.total_dipinjam, 0) - IFNULL(pengembalian.total_dikembalikan, 0)'), '>', 0)
+            ->get();
     }
 }

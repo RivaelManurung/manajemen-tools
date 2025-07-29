@@ -1,4 +1,5 @@
-{{-- <!DOCTYPE html>
+{{--
+<!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}" class="layout-wide customizer-hide" data-assets-path="{{ asset('assets/') }}"
     data-template="vertical-menu-template-free">
 
@@ -118,21 +119,27 @@
 
 </html> --}}
 <!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}" class="layout-wide customizer-hide" data-assets-path="{{ asset('assets/') }}" data-template="vertical-menu-template-free">
+<html lang="{{ app()->getLocale() }}" class="layout-wide customizer-hide" data-assets-path="{{ asset('assets/') }}"
+    data-template="vertical-menu-template-free">
+
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
     <title>Login | Manajemen Peralatan</title>
     <meta name="description" content="Sistem Manajemen Peminjaman Peralatan" />
-    
+
     {{-- Aset disesuaikan dengan template Anda --}}
-    <link rel="icon" type="image/x-icon" href="{{ asset('assets/img/favicon/favicon.ico') }}" />
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets/Logo.png') }}" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+        rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('assets/vendor/fonts/boxicons.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/vendor/css/core.css') }}" class="template-customizer-core-css" />
-    <link rel="stylesheet" href="{{ asset('assets/vendor/css/theme-default.css') }}" class="template-customizer-theme-css" />
+    <link rel="stylesheet" href="{{ asset('assets/vendor/css/theme-default.css') }}"
+        class="template-customizer-theme-css" />
     <link rel="stylesheet" href="{{ asset('assets/css/demo.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/vendor/css/pages/page-auth.css') }}" />
 </head>
@@ -150,14 +157,14 @@
                         </div>
                         <h4 class="mb-2">Selamat Datang! 👋</h4>
                         <p class="mb-4">Silakan login ke akun Anda untuk memulai.</p>
-                        
+
                         <form id="formAuthentication" class="mb-3" action="{{ route('login') }}" method="POST">
                             @csrf
                             <div class="mb-3">
                                 <label for="username" class="form-label">Username</label>
-                                <input type="text" class="form-control @error('username') is-invalid @enderror" id="username"
-                                    name="username" value="{{ old('username') }}" placeholder="Masukkan username Anda"
-                                    autofocus required />
+                                <input type="text" class="form-control @error('username') is-invalid @enderror"
+                                    id="username" name="username" value="{{ old('username') }}"
+                                    placeholder="Masukkan username Anda" autofocus required />
                                 @error('username')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
@@ -196,9 +203,10 @@
             </div>
         </div>
     </div>
-    
+
     {{-- Pastikan path ke JS sudah benar sesuai struktur folder Anda --}}
     <script src="{{ asset('assets/vendor/libs/jquery/jquery.js') }}"></script>
     <script src="{{ asset('assets/vendor/js/bootstrap.js') }}"></script>
 </body>
+
 </html>

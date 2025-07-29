@@ -11,17 +11,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-            Schema::create('transaksis', function (Blueprint $table) {
-        $table->id();
-        $table->string('kode_transaksi')->unique();
-        $table->enum('tipe', ['peminjaman', 'pengembalian']);
-        $table->foreignId('user_id')->constrained('users');
-        // PERBAIKAN: Nama kolom diubah menjadi 'storeman_id'
-        $table->foreignId('storeman_id')->nullable()->constrained('users');
-        $table->timestamp('tanggal_transaksi');
-        $table->text('catatan')->nullable();
-        $table->timestamps();
-    });
+        Schema::create('transaksis', function (Blueprint $table) {
+            $table->id();
+            $table->string('kode_transaksi')->unique();
+            $table->enum('tipe', ['peminjaman', 'pengembalian']);
+            $table->foreignId('user_id')->constrained('users');
+
+            // PERBAIKAN: Dihubungkan ke tabel 'storemen' yang benar
+            $table->foreignId('storeman_id')->nullable()->constrained('storemen');
+
+            // PENAMBAHAN: Kolom untuk melacak transaksi peminjaman asli
+            $table->foreignId('peminjaman_id')->nullable()->constrained('transaksis');
+
+            $table->timestamp('tanggal_transaksi');
+            $table->text('catatan')->nullable();
+            $table->timestamps();
+        });
     }
 
     /**
@@ -29,6 +34,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('transaksi');
+        // PERBAIKAN: Disesuaikan dengan nama tabel plural
+        Schema::dropIfExists('transaksis');
     }
 };
