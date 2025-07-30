@@ -8,16 +8,16 @@
         <div class="card-header">
             <h5 class="mb-0">Riwayat Semua Transaksi</h5>
         </div>
-
+        
         <div class="card-body border-bottom">
             <form action="{{ route('admin.transaksi.index') }}" method="GET" class="row g-3 align-items-end">
                 <div class="col-md-3">
                     <label class="form-label">Filter Cepat</label>
                     <select name="filter" onchange="this.form.submit()" class="form-select">
                         <option value="">Semua</option>
-                        <option value="harian" @if(request('filter')=='harian' ) selected @endif>Hari Ini</option>
-                        <option value="mingguan" @if(request('filter')=='mingguan' ) selected @endif>Minggu Ini</option>
-                        <option value="bulanan" @if(request('filter')=='bulanan' ) selected @endif>Bulan Ini</option>
+                        <option value="harian" @if(request('filter') == 'harian') selected @endif>Hari Ini</option>
+                        <option value="mingguan" @if(request('filter') == 'mingguan') selected @endif>Minggu Ini</option>
+                        <option value="bulanan" @if(request('filter') == 'bulanan') selected @endif>Bulan Ini</option>
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -53,26 +53,25 @@
                         <td><strong>{{ $transaksi->kode_transaksi }}</strong></td>
                         <td>
                             @if($transaksi->tipe == 'peminjaman')
-                            <span class="badge bg-label-warning">Peminjaman</span>
+                                <span class="badge bg-label-warning">Peminjaman</span>
                             @else
-                            <span class="badge bg-label-success">Pengembalian</span>
+                                <span class="badge bg-label-success">Pengembalian</span>
                             @endif
                         </td>
                         <td>{{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->format('d M Y, H:i') }}</td>
                         <td>{{ $transaksi->user?->fullname ?? 'N/A' }}</td>
                         <td>{{ $transaksi->storeman?->nama ?? '-' }}</td>
                         <td>
-                            <button type="button" class="btn btn-sm btn-info view-details" data-bs-toggle="modal"
-                                data-bs-target="#detailModal"
-                                data-url="{{ route('admin.transaksi.show', $transaksi->id) }}">
+                            <button type="button" class="btn btn-sm btn-info view-details" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#detailModal" 
+                                    data-url="{{ route('admin.transaksi.show', $transaksi->id) }}">
                                 Detail
                             </button>
                         </td>
                     </tr>
                     @empty
-                    <tr>
-                        <td colspan="6" class="text-center">Tidak ada data transaksi.</td>
-                    </tr>
+                    <tr><td colspan="6" class="text-center">Tidak ada data transaksi.</td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -84,8 +83,6 @@
             </a>
         </div>
     </div>
-</div>
-
 <div class="modal fade" id="detailModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">

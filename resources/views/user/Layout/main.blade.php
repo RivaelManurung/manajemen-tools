@@ -23,7 +23,46 @@
 
 <body>
     
-    @yield('content')
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container-fluid">
+            {{-- Bagian Kiri Navbar (Logo/Brand) --}}
+            <a class="navbar-brand" href="{{ route('user.peminjaman.index') }}">
+                <i class='bx bxs-wrench'></i>
+                Manajemen Tools
+            </a>
+
+            {{-- Bagian Kanan Navbar --}}
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+
+                    {{-- Dropdown Profil Pengguna --}}
+                    @auth
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class='bx bxs-user-circle me-1'></i>
+                            {{ Auth::user()->fullname }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                            <li>
+                                <a class="dropdown-item" href="{{ route('logout') }}" 
+                                   onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                    <i class='bx bx-log-out me-2'></i>Keluar
+                                </a>
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                    @csrf
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                    @endauth
+                </ul>
+            </div>
+        </div>
+    </nav>
+    {{-- Konten utama dari setiap halaman akan dirender di sini --}}
+    <main>
+        @yield('content')
+    </main>
 
     <script src="{{ asset('assets/vendor/libs/jquery/jquery.js') }}"></script>
     <script src="{{ asset('assets/vendor/libs/popper/popper.js') }}"></script>

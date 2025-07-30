@@ -14,7 +14,7 @@ use Illuminate\Http\RedirectResponse;
 class PeminjamanController extends Controller
 {
     /**
-     * METHOD INDEX: Menampilkan HANYA riwayat transaksi user.
+     * Menampilkan riwayat transaksi PRIBADI milik user.
      */
     public function index(): View
     {
@@ -27,7 +27,7 @@ class PeminjamanController extends Controller
     }
 
     /**
-     * METHOD CREATE: Menyiapkan data dan menampilkan FORM peminjaman/pengembalian.
+     * Menampilkan form untuk peminjaman & pengembalian.
      */
     public function create(): View
     {
@@ -49,7 +49,7 @@ class PeminjamanController extends Controller
     }
 
     /**
-     * METHOD STORE: Menyimpan data peminjaman baru.
+     * Menyimpan transaksi PEMINJAMAN dari user.
      */
     public function store(Request $request): RedirectResponse
     {
@@ -63,7 +63,6 @@ class PeminjamanController extends Controller
 
         DB::beginTransaction();
         try {
-            // Cek ketersediaan stok
             foreach ($request->items as $item) {
                 $peralatan = Peralatan::find($item['peralatan_id']);
                 if ($item['jumlah'] > $peralatan->stokTersedia()) {
@@ -72,7 +71,6 @@ class PeminjamanController extends Controller
                 }
             }
 
-            // Buat transaksi
             $transaksi = Transaksi::create([
                 'kode_transaksi' => 'PINJAM-' . time(),
                 'tipe' => 'peminjaman',
@@ -90,7 +88,7 @@ class PeminjamanController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('peminjaman.index')->with('success', 'Peminjaman berhasil diajukan.');
+            return redirect()->route('user.peminjaman.index')->with('success', 'Peminjaman berhasil diajukan.');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
@@ -98,7 +96,7 @@ class PeminjamanController extends Controller
     }
 
     /**
-     * METHOD KEMBALIKAN: Membuat transaksi pengembalian.
+     * Membuat transaksi PENGEMBALIAN.
      */
     public function kembalikan(Request $request, Transaksi $peminjaman): RedirectResponse
     {
@@ -123,7 +121,7 @@ class PeminjamanController extends Controller
                 $pengembalian->details()->create([
                     'peralatan_id' => $detail->peralatan_id,
                     'jumlah' => $detail->jumlah,
-                    'kondisi' => 'baik', // Anda bisa menambahkan input kondisi di modal konfirmasi jika perlu
+                    'kondisi' => 'baik',
                 ]);
             }
             
@@ -134,4 +132,5 @@ class PeminjamanController extends Controller
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
+        
 }

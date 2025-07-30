@@ -43,8 +43,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::resource('peralatan', PeralatanController::class);
 
     //Transaksi
+    Route::get('/transaksi/export', [TransaksiController::class, 'exportPDF'])->name('transaksi.exportPDF');
     Route::resource('transaksi', TransaksiController::class);
-Route::get('/transaksi/export', [TransaksiController::class, 'exportPDF'])->name('transaksi.exportPDF');
 
 
     // CRUD User

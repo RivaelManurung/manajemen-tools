@@ -6,56 +6,54 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne; // Tambahkan ini
 
 class Transaksi extends Model
 {
     use HasFactory;
 
-    /**
-     * Nama tabel yang terhubung dengan model.
-     *
-     * @var string
-     */
     protected $table = 'transaksis';
 
-    /**
-     * Atribut yang dapat diisi secara massal.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'kode_transaksi',
         'tipe',
         'user_id',
+        'storeman_id',
+        'peminjaman_id',
         'tanggal_transaksi',
         'catatan',
-        'storeman_id',
-        'peminjaman_id', 
     ];
 
-    /**
-     * Mendefinisikan relasi "satu ke banyak" ke TransaksiDetail.
-     * Satu transaksi memiliki banyak detail barang.
-     */
     public function details(): HasMany
     {
         return $this->hasMany(TransaksiDetail::class);
     }
 
-    /**
-     * Mendefinisikan relasi "milik" ke User.
-     * Satu transaksi dilakukan oleh satu user.
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
-    /**
-     * Mendefinisikan relasi "milik" ke Storeman.
-     * Satu transaksi dikelola oleh satu storeman.
-     */
+
     public function storeman(): BelongsTo
     {
         return $this->belongsTo(Storeman::class);
+    }
+
+    /**
+     * PENAMBAHAN: Relasi untuk mengecek apakah sebuah peminjaman sudah memiliki transaksi pengembalian.
+     * Satu peminjaman memiliki satu pengembalian.
+     */
+    public function pengembalian(): HasOne
+    {
+        return $this->hasOne(Transaksi::class, 'peminjaman_id');
+    }
+
+    /**
+     * PENAMBAHAN: Relasi untuk melihat dari mana sebuah pengembalian berasal (opsional).
+     * Satu pengembalian milik satu peminjaman.
+     */
+    public function peminjamanAsal(): BelongsTo
+    {
+        return $this->belongsTo(Transaksi::class, 'peminjaman_id');
     }
 }
