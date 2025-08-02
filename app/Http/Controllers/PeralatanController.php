@@ -77,7 +77,7 @@ class PeralatanController extends Controller
 
         $peralatan->update($request->all());
 
-        return redirect()->route('peralatan.index')->with('success', 'Data peralatan berhasil diperbarui.');
+        return redirect()->route('admin.peralatan.index')->with('success', 'Data peralatan berhasil diperbarui.');
     }
 
     /**
@@ -87,11 +87,11 @@ class PeralatanController extends Controller
     {
         // Logika pengecekan menggunakan method helper dari model
         if ($peralatan->stokTersedia() < $peralatan->stok_total) {
-            return redirect()->route('peralatan.index')->with('error', 'Tidak bisa menghapus peralatan yang sedang dipinjam.');
+            return redirect()->route('admin.peralatan.index')->with('error', 'Tidak bisa menghapus peralatan yang sedang dipinjam.');
         }
 
         $peralatan->delete();
 
-        return redirect()->route('peralatan.index')->with('success', 'Peralatan berhasil dihapus.');
+        return redirect()->route('admin.peralatan.index')->with('success', 'Peralatan berhasil dihapus.');
     }
 }

@@ -4,6 +4,8 @@
 
 @section('content')
 <div class="container-xxl flex-grow-1 container-p-y">
+    @if(session('success')) <div class="alert alert-success">{{ session('success') }}</div> @endif
+    @if(session('error')) <div class="alert alert-danger">{{ session('error') }}</div> @endif
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Manajemen Job Title</h5>
@@ -27,18 +29,19 @@
                         <td><span class="badge bg-label-info">{{ $jobTitle->users_count }}</span></td>
                         <td>
                             <div class="dropdown">
-                                <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                                <button type="button" class="btn p-0 dropdown-toggle hide-arrow"
+                                    data-bs-toggle="dropdown">
                                     <i class="bx bx-dots-vertical-rounded"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <button class="dropdown-item edit-job-title" 
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#editJobTitleModal" 
-                                        data-id="{{ $jobTitle->id }}"
-                                        data-name="{{ $jobTitle->name }}">
+                                    <button class="dropdown-item edit-job-title" data-bs-toggle="modal"
+                                        data-bs-target="#editJobTitleModal" data-id="{{ $jobTitle->id }}"
+                                        data-name="{{ $jobTitle->name }}"
+                                        data-update-url="{{ route('admin.job-titles.update', ['job_title' => 'PLACEHOLDER']) }}">
                                         <i class="bx bx-edit-alt me-1"></i> Edit
                                     </button>
-                                    <form action="{{ route('admin.job-titles.destroy', $jobTitle->id) }}" method="POST" onsubmit="return confirm('Anda yakin ingin menghapus data ini?');">
+                                    <form action="{{ route('admin.job-titles.destroy', $jobTitle->id) }}" method="POST"
+                                        onsubmit="return confirm('Anda yakin ingin menghapus data ini?');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="dropdown-item text-danger">
@@ -70,18 +73,22 @@
 
 @push('scripts')
 {{-- JavaScript untuk mengisi modal edit --}}
+@push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.edit-job-title').forEach(button => {
             button.addEventListener('click', function () {
                 const modal = document.querySelector('#editJobTitleModal');
                 const form = modal.querySelector('form');
+                const jobTitleId = this.dataset.id;
                 
-                // Membuat URL action form secara dinamis
-                const baseUrl = "{{ url('job-titles') }}";
-                form.action = `${baseUrl}/${this.dataset.id}`;
+                // 1. Ambil template URL dari atribut data
+                let updateUrl = this.dataset.updateUrl;
                 
-                // Mengisi value pada input nama
+                // 2. Ganti 'PLACEHOLDER' dengan ID yang sebenarnya
+                form.action = updateUrl.replace('PLACEHOLDER', jobTitleId);
+                
+                // 3. Mengisi value pada input nama (ini sudah benar)
                 modal.querySelector('#edit-name').value = this.dataset.name;
             });
         });

@@ -22,7 +22,7 @@ class PeminjamanController extends Controller
             ->with(['storeman', 'details.peralatan', 'pengembalian'])
             ->latest('tanggal_transaksi')
             ->paginate(10);
-            
+
         return view('user.peminjaman.index', compact('riwayatTransaksi'));
     }
 
@@ -37,7 +37,7 @@ class PeminjamanController extends Controller
         })->filter(function ($item) {
             return $item->stok_tersedia > 0;
         });
-        
+
         $peralatanDipinjam = Auth::user()->peralatanYangSedangDipinjam();
         $daftarStoreman = Storeman::orderBy('nama')->get();
 
@@ -105,7 +105,7 @@ class PeminjamanController extends Controller
         if ($peminjaman->user_id !== Auth::id() || $peminjaman->tipe !== 'peminjaman' || $peminjaman->pengembalian) {
             return redirect()->route('peminjaman.index')->with('error', 'Transaksi tidak valid untuk dikembalikan.');
         }
-        
+
         DB::beginTransaction();
         try {
             $pengembalian = Transaksi::create([
@@ -124,13 +124,12 @@ class PeminjamanController extends Controller
                     'kondisi' => 'baik',
                 ]);
             }
-            
+
             DB::commit();
-            return redirect()->route('peminjaman.index')->with('success', 'Pengembalian berhasil dicatat.');
+            return redirect()->route('user.peminjaman.index')->with('success', 'Pengembalian berhasil dicatat.');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
-        
 }

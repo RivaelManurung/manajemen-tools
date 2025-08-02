@@ -10,38 +10,38 @@ use Illuminate\Validation\Rule;
 
 class JobTitleController extends Controller
 {
-    public function index(): View
+    public function index()
     {
         // PENYEMPURNAAN: Menambahkan hitungan pengguna untuk setiap job title
         $jobTitles = JobTitle::withCount('users')->latest()->paginate(10);
         return view('admin.job-titles.index', compact('jobTitles'));
     }
 
-    public function create(): View
+    public function create()
     {
         return view('admin.job-titles.create');
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
         $request->validate(['name' => 'required|string|max:255|unique:job_titles']);
         JobTitle::create($request->all());
         return redirect()->route('admin.job-titles.index')->with('success', 'Job Title berhasil dibuat.');
     }
 
-    public function edit(JobTitle $jobTitle): View
+    public function edit(JobTitle $jobTitle)
     {
         return view('admin.job-titles.edit', compact('jobTitle'));
     }
 
-    public function update(Request $request, JobTitle $jobTitle): RedirectResponse
+    public function update(Request $request, JobTitle $jobTitle)
     {
         $request->validate(['name' => ['required', 'string', 'max:255', Rule::unique('job_titles')->ignore($jobTitle->id)]]);
         $jobTitle->update($request->all());
         return redirect()->route('admin.job-titles.index')->with('success', 'Job Title berhasil diperbarui.');
     }
 
-    public function destroy(JobTitle $jobTitle): RedirectResponse
+    public function destroy(JobTitle $jobTitle)
     {
         if ($jobTitle->users()->count() > 0) {
             return back()->with('error', 'Job Title tidak bisa dihapus karena masih digunakan oleh user.');
